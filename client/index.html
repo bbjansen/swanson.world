@@ -16,8 +16,11 @@
 
 
 		<script>
-            let camera, controls, scene, renderer, width, height;
+            let client, world, width, height, camera, controls, scene, renderer;
             
+            // Set Server
+            client = new Colyseus.Client('ws://139.162.170.247:2567');
+
             // Set frame
             width = window.innerWidth
             height = window.innerHeight
@@ -38,7 +41,7 @@
                 // Generate Scene
                 scene = new THREE.Scene();
                 scene.background = new THREE.Color( 0x161616 );
-                scene.fog = new THREE.FogExp2( 0xFFFFFF, 0.02 );
+                scene.fog = new THREE.FogExp2( 0x161616, 0.02 );
 
                 // Render
                 renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -50,7 +53,7 @@
                 camera = new THREE.PerspectiveCamera( 60, width / height, 0.5, 1000);
                 controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-                camera.position.set( 0, 1, 30 );
+                camera.position.set( 1, 5, 15 );
                 controls.enableDamping = true;
                 controls.dampingFactor = 0.05;
                 controls.screenSpacePanning = false;
@@ -58,13 +61,20 @@
                 controls.maxDistance = 50;
 
                 controls.maxPolarAngle = Math.PI / 2
-                
-                // Connect to the Server
+            
+                // Generate Shading
+				const NorthLight = new THREE.DirectionalLight( 0xffffff );
+				NorthLight.position.set( 1, 1, 1 );
+				scene.add( NorthLight );
 
-                let client = new Colyseus.Client('ws://139.162.170.247:2567');
-                let world
+				const SouthLight = new THREE.DirectionalLight( 0x002288 );
+				SouthLight.position.set( - 1, - 1, - 1 );
+				scene.add( SouthLight );
 
-                // Join the World
+				const ambientLight = new THREE.AmbientLight( 0x222222 );
+				scene.add( ambientLight );
+
+                // Add logged in Players
                 client.joinOrCreate('world').then(instance => {
                     room = instance
 
@@ -76,9 +86,7 @@
 
                         // Lets generate the Player object
                         const box = new THREE.BoxGeometry();
-                        const boxMaterial = new THREE.MeshBasicMaterial( { color: colors[Math.floor(Math.random() * colors.length)] } );
-                        
-                        const material = new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } );
+                        const boxMaterial = new THREE.MeshPhongMaterial( { color: colors[Math.floor(Math.random() * colors.length)],  flatShading: true } );
 
                         const Player = new THREE.Mesh(box, boxMaterial )
                         
@@ -126,10 +134,11 @@
                         console.log(message);
                     });
                 });
+
+                window.addEventListener( 'resize', onWindowResize, false );
             };
 
             // Resize
-            window.addEventListener( 'resize', onWindowResize, false );
 
             function onWindowResize() {
                 camera.aspect = window.innerWidth / window.innerHeight;
