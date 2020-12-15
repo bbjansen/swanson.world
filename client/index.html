@@ -85,10 +85,10 @@
                     room.state.players.onAdd = function (player, sessionId) {
 
                         // Lets generate the Player object
-                        const box = new THREE.BoxGeometry();
-                        const boxMaterial = new THREE.MeshPhongMaterial( { color: colors[Math.floor(Math.random() * colors.length)],  flatShading: true } );
+                        const cylinder = new THREE.CylinderBufferGeometry(0, 1, 3, 5, 1);
+                        const cylinderMaterial = new THREE.MeshPhongMaterial( { color: colors[Math.floor(Math.random() * colors.length)],  flatShading: true } );
 
-                        const Player = new THREE.Mesh(box, boxMaterial )
+                        let Player = new THREE.Mesh(cylinder, cylinderMaterial )
                         
                         // Generate a label for the Player
                         const label = new THREE.TextGeometry(sessionId, {
@@ -102,13 +102,13 @@
                             bevelSegments: 0.1
                         });
 
-                        // Add the Player's name
+                        // Add the Player's nametag
                         const textMaterial = new THREE.MeshBasicMaterial({ color: colors[Math.floor(Math.random() * colors.length)] });
                         var playerName = new THREE.Mesh(label, textMaterial);
 
                         playerName.position.z = 0;
                         playerName.position.x = -0.7;
-                        playerName.position.y = 1;
+                        playerName.position.y = 2.5;
                         playerName.rotation.y = 0;
 
                         Player.add(playerName);
