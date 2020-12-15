@@ -32,7 +32,7 @@
 
 
 		<script>
-            let client, world, width, height, camera, listener, sound, controls, scene, renderer;
+            let client, world, width, height, camera, grid, listener, sound, controls, scene, renderer;
             
             // Set Server
             client = new Colyseus.Client('ws://localhost:2567');
@@ -86,6 +86,11 @@
                 controls.maxDistance = 50;
 
                 controls.maxPolarAngle = Math.PI / 2
+
+                // Add Grid
+                grid = new THREE.GridHelper(1000, 1000, "aqua", "gray");
+                scene.add(grid);
+
             
                 // Generate Shading
 				const NorthLight = new THREE.DirectionalLight( 0xffffff );
@@ -105,12 +110,10 @@
 
                 sound = new THREE.Audio(listener);
 
-
+                // Toggle Sound
                 document.querySelectorAll('.soundButton').forEach(function(el){
 
                     let switchState = 0;
-
-
                     document.body.addEventListener('click', () => {
 
                         if(switchState === 0) {
@@ -144,7 +147,11 @@
                         const cylinderMaterial = new THREE.MeshPhongMaterial( { color: colors[Math.floor(Math.random() * colors.length)],  flatShading: true } );
 
                         let Player = new THREE.Mesh(cylinder, cylinderMaterial )
-                        
+
+                        Player.position.z = 0;
+                        Player.position.x = 0;
+                        Player.position.y = 1.5; 
+
                         // Generate a label for the Player
                         const label = new THREE.TextGeometry(sessionId, {
                             font: font,
@@ -159,12 +166,11 @@
 
                         // Add the Player's nametag
                         const textMaterial = new THREE.MeshBasicMaterial({ color: colors[Math.floor(Math.random() * colors.length)] });
-                        var playerName = new THREE.Mesh(label, textMaterial);
+                        let playerName = new THREE.Mesh(label, textMaterial);
 
                         playerName.position.z = 0;
                         playerName.position.x = -0.7;
                         playerName.position.y = 2.5;
-                        playerName.rotation.y = 0;
 
                         Player.add(playerName);
 
