@@ -10,10 +10,14 @@
 		</style>
 	</head>
 	<body>
-    	<script src='assets/js/colyseus.js'></script>
-		<script src='assets/js/three.js'></script>
-        
-		<script>
+    	<script src='./assets/js/colyseus.js'></script>
+		<script src='./assets/js/three.js'></script>
+		<script src='./assets/js/three/OrbitControls.js'></script>
+
+
+		<script>			
+            let camera, controls, scene, renderer, width, height;
+
             // Font
             let font;
             const loader = new THREE.FontLoader();
@@ -22,19 +26,36 @@
             } );
 
             // Setup Scene + Camera + Rendering
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            width = window.innerWidth
+            height = window.innerHeight
 
-            const renderer = new THREE.WebGLRenderer();
-            renderer.setSize( window.innerWidth, window.innerHeight );
+            // Render
+			renderer = new THREE.WebGLRenderer( { antialias: true } );
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( width, height );
             document.body.appendChild( renderer.domElement );
-            
-            camera.position.z = 10;
-            camera.position.y = 3;
 
+            // Generate Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color( 0x161616 );
+			scene.fog = new THREE.FogExp2( 0xFFFFFF, 0.02 );
+
+            // Camera and Controls
+
+            camera = new THREE.PerspectiveCamera( 60, width / height, 0.5, 1000);
+            controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+			camera.position.set( 0, 1, 30 );
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.screenSpacePanning = false;
+            controls.minDistance = 0;
+            controls.maxDistance = 50;
+
+            controls.maxPolarAngle = Math.PI / 2
             // Connect
 
-            let client = new Colyseus.Client('ws://5028682a3654.ngrok.io ');
+            let client = new Colyseus.Client('ws://localhost:2567');
             let world
 
             client.joinOrCreate('world').then(instance => {
@@ -45,8 +66,8 @@
 
                 // New player enters the world
                 room.state.players.onAdd = function (player, sessionId) {
-                    // Generate a name
                     
+                    // Generate a name
                     const name = new THREE.TextGeometry(sessionId, {
                         font: font,
                         size: 0.2,
@@ -82,7 +103,6 @@
           
                     players[sessionId] = cube;
                     scene.add(cube); 
-                    
                 }
 
                 room.state.players.onRemove = function (player, sessionId) {
@@ -90,7 +110,6 @@
                     delete players[sessionId];
                 }
 
-                
                 room.onMessage('hello', (message) => {
                     console.log(message);
                 });
@@ -102,11 +121,11 @@
                     var keyCode = event.which;
 
                     if (keyCode == 40) {
-                        room.send('move', { y: -1 })
+                        room.send('move', { y: 1 })
                     } 
                     
                     if (keyCode == 38) {
-                        room.send('move', { y: 1 });
+                        room.send('move', { y: -1 });
                     } 
                     
                     if (keyCode == 37) {
@@ -119,19 +138,15 @@
                 };
             });
 
-            
             // Animate the cube!
-
             animate();
 
             function animate() {
 
                 requestAnimationFrame( animate );
+                controls.update();
                 renderer.render( scene, camera );
             }
-
-            
-
 		</script>
 	</body>
 </html>
