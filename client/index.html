@@ -55,7 +55,7 @@
             controls.maxPolarAngle = Math.PI / 2
             // Connect
 
-            let client = new Colyseus.Client('ws://localhost:2567');
+            let client = new Colyseus.Client('ws://139.162.170.247:2567');
             let world
 
             client.joinOrCreate('world').then(instance => {
@@ -66,13 +66,13 @@
 
                 // New player enters the world
                 room.state.players.onAdd = function (player, sessionId) {
-                    
+
                     // Generate a name
-                    const name = new THREE.TextGeometry(sessionId, {
+                    const label = new THREE.TextGeometry(sessionId, {
                         font: font,
                         size: 0.2,
-                        height: 0,
-                        curveSegments: 0,
+                        height: 0.05,
+                        curveSegments: 0.1,
                         bevelEnabled: false,
                         bevelThickness: 0.1,
                         bevelSize: 0.1,
@@ -87,9 +87,9 @@
                     
                     // Add Text
                     const textMaterial = new THREE.MeshBasicMaterial({ color: colors[Math.floor(Math.random() * colors.length)] });
-                    var playerName = new THREE.Mesh(name, textMaterial);
+                    var playerName = new THREE.Mesh(label, textMaterial);
 
-                    playerName.position.z = 1;
+                    playerName.position.z = 0;
                     playerName.position.x = -0.7;
                     playerName.position.y = 1;
                     playerName.rotation.y = 0;
