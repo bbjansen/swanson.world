@@ -9,6 +9,10 @@
 	</head>
 	<body>
 
+        <div id="banner">
+            <p class="title">FexWorld</p>
+        </div>
+
         <div id='chat'>
             <div class='messages'></div>
 
@@ -18,27 +22,40 @@
             </form>
         </div>
 
+        <div id="sound">
+        <button class="soundButton">🔊</button>
+        </div>
+
     	<script src='./assets/js/colyseus.js'></script>
 		<script src='./assets/js/three.js'></script>
 		<script src='./assets/js/three/OrbitControls.js'></script>
 
 
 		<script>
-            let client, world, width, height, camera, controls, scene, renderer;
+            let client, world, width, height, camera, listener, sound, controls, scene, renderer;
             
             // Set Server
             client = new Colyseus.Client('ws://localhost:2567');
 
             // Set frame
-            width = window.innerWidth
-            height = window.innerHeight
+            width = window.innerWidth;
+            height = window.innerHeight;
 
             // Load Font
             let font;
-            const loader = new THREE.FontLoader();
-            loader.load('./assets/fonts/helvetiker_regular.typeface.json', function ( response ) {
+            let Fontloader = new THREE.FontLoader();
+
+            Fontloader.load('./assets/fonts/helvetiker_regular.typeface.json', function ( response ) {
                 font = response;
             } );
+
+            // Load Audio
+            let soundtrack;
+            let audioLoader = new THREE.AudioLoader();
+
+            audioLoader.load('./assets/sounds/welcome.ogg', function( buffer ) {
+               soundtrack = buffer
+            });
 
             // Go!
             init()
@@ -81,6 +98,36 @@
 
 				const ambientLight = new THREE.AmbientLight( 0x222222 );
 				scene.add( ambientLight );
+
+                // Set Sound
+                listener = new THREE.AudioListener();
+                camera.add( listener ); 
+
+                sound = new THREE.Audio(listener);
+
+
+                document.querySelectorAll('.soundButton').forEach(function(el){
+
+                    let switchState = 0;
+
+
+                    document.body.addEventListener('click', () => {
+
+                        if(switchState === 0) {
+                            
+                            sound.setBuffer(soundtrack);
+                            sound.setLoop(true);
+                            sound.setVolume(0.5);
+                            sound.play();
+
+                            switchState = 1
+                        }
+                        else if(switchState === 1) {
+                            sound.stop();
+                            switchState = 0;
+                        }
+                    })
+                })
 
                 // Add logged in Players
                 client.joinOrCreate('world').then(instance => {
