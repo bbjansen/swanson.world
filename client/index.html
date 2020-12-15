@@ -15,7 +15,7 @@
 		<script src='./assets/js/three/OrbitControls.js'></script>
 
 
-		<script>			
+		<script>
             let camera, controls, scene, renderer, width, height;
             
             // Set frame
@@ -29,130 +29,148 @@
                 font = response;
             } );
 
-            // Render
-			renderer = new THREE.WebGLRenderer( { antialias: true } );
-            renderer.setPixelRatio( window.devicePixelRatio );
-            renderer.setSize( width, height );
-            document.body.appendChild( renderer.domElement );
+            // Go!
+            init()
+            animate()
 
-            // Generate Scene
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color( 0x161616 );
-			scene.fog = new THREE.FogExp2( 0xFFFFFF, 0.02 );
+            function init() {
+        
+                // Generate Scene
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color( 0x161616 );
+                scene.fog = new THREE.FogExp2( 0xFFFFFF, 0.02 );
 
-            // Camera and Controls
-            camera = new THREE.PerspectiveCamera( 60, width / height, 0.5, 1000);
-            controls = new THREE.OrbitControls( camera, renderer.domElement );
+                // Render
+                renderer = new THREE.WebGLRenderer( { antialias: true } );
+                renderer.setPixelRatio( window.devicePixelRatio );
+                renderer.setSize( width, height );
+                document.body.appendChild( renderer.domElement );
 
-			camera.position.set( 0, 1, 30 );
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.05;
-            controls.screenSpacePanning = false;
-            controls.minDistance = 0;
-            controls.maxDistance = 50;
+                // Camera and Controls
+                camera = new THREE.PerspectiveCamera( 60, width / height, 0.5, 1000);
+                controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-            controls.maxPolarAngle = Math.PI / 2
+                camera.position.set( 0, 1, 30 );
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+                controls.screenSpacePanning = false;
+                controls.minDistance = 0;
+                controls.maxDistance = 50;
+
+                controls.maxPolarAngle = Math.PI / 2
+                
+                // Connect to the Server
+
+                let client = new Colyseus.Client('ws://139.162.170.247:2567');
+                let world
+
+                // Join the World
+                client.joinOrCreate('world').then(instance => {
+                    room = instance
+
+                    var players = {};
+                    var colors = [0xff0000, 0x00ff00, 0xffff00, 0x0000ff, 0x00ffff, 0x9900ff];
+
+                    // New player enters the world
+                    room.state.players.onAdd = function (player, sessionId) {
+
+                        // Lets generate the Player object
+                        const box = new THREE.BoxGeometry();
+                        const boxMaterial = new THREE.MeshBasicMaterial( { color: colors[Math.floor(Math.random() * colors.length)] } );
+                        
+                        const material = new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } );
+
+                        const Player = new THREE.Mesh(box, boxMaterial )
+                        
+                        // Generate a label for the Player
+                        const label = new THREE.TextGeometry(sessionId, {
+                            font: font,
+                            size: 0.2,
+                            height: 0.05,
+                            curveSegments: 0.1,
+                            bevelEnabled: false,
+                            bevelThickness: 0.1,
+                            bevelSize: 0.1,
+                            bevelSegments: 0.1
+                        });
+
+                        // Add the Player's name
+                        const textMaterial = new THREE.MeshBasicMaterial({ color: colors[Math.floor(Math.random() * colors.length)] });
+                        var playerName = new THREE.Mesh(label, textMaterial);
+
+                        playerName.position.z = 0;
+                        playerName.position.x = -0.7;
+                        playerName.position.y = 1;
+                        playerName.rotation.y = 0;
+
+                        Player.add(playerName);
+
+                        // Update the Player's coordinates onchange
+                        player.onChange = function (changes) {
+                            Player.position.x = player.x;
+                            Player.position.z = player.y;
+                        }
             
-            // Connect to the Server
-
-            let client = new Colyseus.Client('ws://139.162.170.247:2567');
-            let world
-
-            // Join the World
-            client.joinOrCreate('world').then(instance => {
-                room = instance
-
-                var players = {};
-                var colors = [0xff0000, 0x00ff00, 0xffff00, 0x0000ff, 0x00ffff, 0x9900ff];
-
-                // New player enters the world
-                room.state.players.onAdd = function (player, sessionId) {
-
-                    // Lets generate the Player object
-                    const box = new THREE.BoxGeometry();
-                    const boxMaterial = new THREE.MeshBasicMaterial( { color: colors[Math.floor(Math.random() * colors.length)] } );
-                	
-                    const material = new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } );
-
-                    const Player = new THREE.Mesh(box, boxMaterial )
-                    
-                    // Generate a label for the Player
-                    const label = new THREE.TextGeometry(sessionId, {
-                        font: font,
-                        size: 0.2,
-                        height: 0.05,
-                        curveSegments: 0.1,
-                        bevelEnabled: false,
-                        bevelThickness: 0.1,
-                        bevelSize: 0.1,
-                        bevelSegments: 0.1
-                     });
-
-                    // Add the Player's name
-                    const textMaterial = new THREE.MeshBasicMaterial({ color: colors[Math.floor(Math.random() * colors.length)] });
-                    var playerName = new THREE.Mesh(label, textMaterial);
-
-                    playerName.position.z = 0;
-                    playerName.position.x = -0.7;
-                    playerName.position.y = 1;
-                    playerName.rotation.y = 0;
-
-                    Player.add(playerName);
-
-                    // Update the Player's coordinates onchange
-                    player.onChange = function (changes) {
-                        Player.position.x = player.x;
-                        Player.position.z = player.y;
+                        // Add the Player to the Scene
+                        players[sessionId] = Player;
+                        scene.add(Player); 
                     }
-          
-                    // Add the Player to the Scene
-                    players[sessionId] = Player;
-                    scene.add(Player); 
-                }
 
-                // Remove the Player from the Scene on leavicng
-                room.state.players.onRemove = function (player, sessionId) {
-                    scene.remove(players[sessionId]);
-                    delete players[sessionId];
-                }
+                    // Remove the Player from the Scene on leavicng
+                    room.state.players.onRemove = function (player, sessionId) {
+                        scene.remove(players[sessionId]);
+                        delete players[sessionId];
+                    }
 
-                room.onMessage('hello', (message) => {
-                    console.log(message);
+                    room.onMessage('hello', (message) => {
+                        console.log(message);
+                    });
                 });
+            };
+
+            // Resize
+            window.addEventListener( 'resize', onWindowResize, false );
+
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+
+                renderer.setSize( window.innerWidth, window.innerHeight );
+            }
 
 
-                // Player's Key Control
-                document.addEventListener('keydown', onDocumentKeyDown, false);
+            // Movement Keys
+            document.addEventListener('keydown', onDocumentKeyDown, false);
 
-                function onDocumentKeyDown(event) {
+            function onDocumentKeyDown(event) {
 
-                    var keyCode = event.which;
+                var keyCode = event.which;
 
-                    if (keyCode == 40) {
-                        room.send('move', { y: 1 })
-                    } 
-                    
-                    if (keyCode == 38) {
-                        room.send('move', { y: -1 });
-                    } 
-                    
-                    if (keyCode == 37) {
-                        room.send('move', { x: -1 })
-                    } 
-                    
-                    if (keyCode == 39) {
-                        room.send('move', { x: 1 });
-                    }
-                };
-            });
+                if (keyCode == 40) {
+                    room.send('move', { y: 1 })
+                } 
+                
+                if (keyCode == 38) {
+                    room.send('move', { y: -1 });
+                } 
+                
+                if (keyCode == 37) {
+                    room.send('move', { x: -1 })
+                } 
+                
+                if (keyCode == 39) {
+                    room.send('move', { x: 1 });
+                }
+            };
 
-            // Animate the cube!
-            animate();
-
+            // Animate
             function animate() {
-
                 requestAnimationFrame( animate );
                 controls.update();
+                render();
+            }
+
+            function render() {
                 renderer.render( scene, camera );
             }
 		</script>
