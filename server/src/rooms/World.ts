@@ -3,17 +3,24 @@ import { State } from "./schema/State";
 
 export class World extends Room {
 
-  maxClients = 4;
+  maxClients = 100;
 
   onCreate (options: any) {
-      console.log("StateHandlerRoom created!", options);
+      console.log("World created!", options);
 
+      // Player State
       this.setState(new State());
 
       this.onMessage("move", (client, data) => {
-          console.log("StateHandlerRoom received message from", client.sessionId, ":", data);
+          console.log("[move]", client.sessionId, ":", data);
           this.state.movePlayer(client.sessionId, data);
       });
+
+      // Player Message
+      this.onMessage("message", (client, message) => {
+        console.log("[message]", client.sessionId, ":", message);
+        this.broadcast("messages", `<b>${client.sessionId}:</b> ${message}`);
+    });
   }
 
   onAuth(client: any, options: any, req: any) {
@@ -21,16 +28,18 @@ export class World extends Room {
   }
 
   onJoin (client: Client) {
-      client.send("hello", "world");
+      //client.send("world");
       this.state.createPlayer(client.sessionId);
+      this.broadcast("messages", `<i><b>${ client.sessionId }</b> joined fexworld. say hello!</i>`);
   }
 
   onLeave (client: any) {
       this.state.removePlayer(client.sessionId);
+      this.broadcast("messages", `${ client.sessionId } left.`);
   }
 
   onDispose () {
-      console.log("Dispose StateHandlerRoom");
+      console.log("Dispose World");
   }
 
 }

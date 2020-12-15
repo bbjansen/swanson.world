@@ -2,14 +2,22 @@
 <html>
 	<head>
 		<meta charset='utf-8'>
-		<title>discover</title>
-		<style>
-			body { margin: 0; }
+        <meta name='viewport' content='width=device-width' />
 
-
-		</style>
+		<title>fexworld</title>
+        <link rel='stylesheet' href='./assets/css/style.css'>
 	</head>
 	<body>
+
+        <div id='chat'>
+            <div class='messages'></div>
+
+            <form class='reply'>
+                <input type='text' id='input' value='' autocomplete='off' autofocus/>
+                <input type='submit' id='send' value='send' />
+            </form>
+        </div>
+
     	<script src='./assets/js/colyseus.js'></script>
 		<script src='./assets/js/three.js'></script>
 		<script src='./assets/js/three/OrbitControls.js'></script>
@@ -19,7 +27,7 @@
             let client, world, width, height, camera, controls, scene, renderer;
             
             // Set Server
-            client = new Colyseus.Client('ws://139.162.170.247:2567');
+            client = new Colyseus.Client('ws://localhost:2567');
 
             // Set frame
             width = window.innerWidth
@@ -130,12 +138,30 @@
                         delete players[sessionId];
                     }
 
-                    room.onMessage('hello', (message) => {
-                        console.log(message);
+                    // Listen for chat messages
+                    room.onMessage('messages', (message) => {
+                        let p = document.createElement('p');
+                        p.innerHTML = message;
+                        document.querySelector('.messages').appendChild(p);
                     });
+
+                    // Send chat messages
+                    document.querySelector('.reply').onsubmit = function(e) {
+                        e.preventDefault();
+
+                        var input = document.querySelector('#input');
+
+                        console.log('input:', input.value);
+
+                        // send data to room
+                        room.send('message', input.value);
+
+                        // clear input
+                        input.value = '';
+                    }
                 });
 
-                window.addEventListener( 'resize', onWindowResize, false );
+                window.addEventListener('resize', onWindowResize, false );
             };
 
             // Resize
@@ -146,8 +172,7 @@
 
                 renderer.setSize( window.innerWidth, window.innerHeight );
             }
-
-
+        
             // Movement Keys
             document.addEventListener('keydown', onDocumentKeyDown, false);
 
