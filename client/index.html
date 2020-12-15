@@ -17,17 +17,17 @@
 
 		<script>			
             let camera, controls, scene, renderer, width, height;
+            
+            // Set frame
+            width = window.innerWidth
+            height = window.innerHeight
 
-            // Font
+            // Load Font
             let font;
             const loader = new THREE.FontLoader();
             loader.load('./assets/fonts/helvetiker_regular.typeface.json', function ( response ) {
                 font = response;
             } );
-
-            // Setup Scene + Camera + Rendering
-            width = window.innerWidth
-            height = window.innerHeight
 
             // Render
 			renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -41,7 +41,6 @@
 			scene.fog = new THREE.FogExp2( 0xFFFFFF, 0.02 );
 
             // Camera and Controls
-
             camera = new THREE.PerspectiveCamera( 60, width / height, 0.5, 1000);
             controls = new THREE.OrbitControls( camera, renderer.domElement );
 
@@ -53,11 +52,13 @@
             controls.maxDistance = 50;
 
             controls.maxPolarAngle = Math.PI / 2
-            // Connect
+            
+            // Connect to the Server
 
             let client = new Colyseus.Client('ws://139.162.170.247:2567');
             let world
 
+            // Join the World
             client.joinOrCreate('world').then(instance => {
                 room = instance
 
@@ -67,7 +68,15 @@
                 // New player enters the world
                 room.state.players.onAdd = function (player, sessionId) {
 
-                    // Generate a name
+                    // Lets generate the Player object
+                    const box = new THREE.BoxGeometry();
+                    const boxMaterial = new THREE.MeshBasicMaterial( { color: colors[Math.floor(Math.random() * colors.length)] } );
+                	
+                    const material = new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } );
+
+                    const Player = new THREE.Mesh(box, boxMaterial )
+                    
+                    // Generate a label for the Player
                     const label = new THREE.TextGeometry(sessionId, {
                         font: font,
                         size: 0.2,
@@ -79,13 +88,7 @@
                         bevelSegments: 0.1
                      });
 
-                    // Lets add a cube!
-                    const box = new THREE.BoxGeometry();
-                    const boxMaterial = new THREE.MeshBasicMaterial( { color: colors[Math.floor(Math.random() * colors.length)] } );
-                
-                    const cube = new THREE.Mesh(box, boxMaterial )
-                    
-                    // Add Text
+                    // Add the Player's name
                     const textMaterial = new THREE.MeshBasicMaterial({ color: colors[Math.floor(Math.random() * colors.length)] });
                     var playerName = new THREE.Mesh(label, textMaterial);
 
@@ -94,17 +97,20 @@
                     playerName.position.y = 1;
                     playerName.rotation.y = 0;
 
-                    cube.add(playerName);
+                    Player.add(playerName);
 
-                     player.onChange = function (changes) {
-                        cube.position.x = player.x;
-                        cube.position.z = player.y;
+                    // Update the Player's coordinates onchange
+                    player.onChange = function (changes) {
+                        Player.position.x = player.x;
+                        Player.position.z = player.y;
                     }
           
-                    players[sessionId] = cube;
-                    scene.add(cube); 
+                    // Add the Player to the Scene
+                    players[sessionId] = Player;
+                    scene.add(Player); 
                 }
 
+                // Remove the Player from the Scene on leavicng
                 room.state.players.onRemove = function (player, sessionId) {
                     scene.remove(players[sessionId]);
                     delete players[sessionId];
@@ -114,6 +120,8 @@
                     console.log(message);
                 });
 
+
+                // Player's Key Control
                 document.addEventListener('keydown', onDocumentKeyDown, false);
 
                 function onDocumentKeyDown(event) {
