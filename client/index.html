@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8'>
+		<title>discover</title>
+		<style>
+			body { margin: 0; }
+
+
+		</style>
+	</head>
+	<body>
+    	<script src='assets/js/colyseus.js'></script>
+		<script src='assets/js/three.js'></script>
+        
+		<script>
+            // Font
+            let font;
+            const loader = new THREE.FontLoader();
+            loader.load('./assets/fonts/helvetiker_regular.typeface.json', function ( response ) {
+                font = response;
+            } );
+
+            // Setup Scene + Camera + Rendering
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            document.body.appendChild( renderer.domElement );
+            
+            camera.position.z = 10;
+            camera.position.y = 3;
+
+            // Connect
+
+            let client = new Colyseus.Client('ws://5028682a3654.ngrok.io ');
+            let world
+
+            client.joinOrCreate('world').then(instance => {
+                room = instance
+
+                var players = {};
+                var colors = [0xff0000, 0x00ff00, 0xffff00, 0x0000ff, 0x00ffff, 0x9900ff];
+
+                // New player enters the world
+                room.state.players.onAdd = function (player, sessionId) {
+                    // Generate a name
+                    
+                    const name = new THREE.TextGeometry(sessionId, {
+                        font: font,
+                        size: 0.2,
+                        height: 0,
+                        curveSegments: 0,
+                        bevelEnabled: false,
+                        bevelThickness: 0.1,
+                        bevelSize: 0.1,
+                        bevelSegments: 0.1
+                     });
+
+                    // Lets add a cube!
+                    const box = new THREE.BoxGeometry();
+                    const boxMaterial = new THREE.MeshBasicMaterial( { color: colors[Math.floor(Math.random() * colors.length)] } );
+                
+                    const cube = new THREE.Mesh(box, boxMaterial )
+                    
+                    // Add Text
+                    const textMaterial = new THREE.MeshBasicMaterial({ color: colors[Math.floor(Math.random() * colors.length)] });
+                    var playerName = new THREE.Mesh(name, textMaterial);
+
+                    playerName.position.z = 1;
+                    playerName.position.x = -0.7;
+                    playerName.position.y = 1;
+                    playerName.rotation.y = 0;
+
+                    cube.add(playerName);
+
+                     player.onChange = function (changes) {
+                        cube.position.x = player.x;
+                        cube.position.z = player.y;
+                    }
+          
+                    players[sessionId] = cube;
+                    scene.add(cube); 
+                    
+                }
+
+                room.state.players.onRemove = function (player, sessionId) {
+                    scene.remove(players[sessionId]);
+                    delete players[sessionId];
+                }
+
+                
+                room.onMessage('hello', (message) => {
+                    console.log(message);
+                });
+
+                document.addEventListener('keydown', onDocumentKeyDown, false);
+
+                function onDocumentKeyDown(event) {
+
+                    var keyCode = event.which;
+
+                    if (keyCode == 40) {
+                        room.send('move', { y: -1 })
+                    } 
+                    
+                    if (keyCode == 38) {
+                        room.send('move', { y: 1 });
+                    } 
+                    
+                    if (keyCode == 37) {
+                        room.send('move', { x: -1 })
+                    } 
+                    
+                    if (keyCode == 39) {
+                        room.send('move', { x: 1 });
+                    }
+                };
+            });
+
+            
+            // Animate the cube!
+
+            animate();
+
+            function animate() {
+
+                requestAnimationFrame( animate );
+                renderer.render( scene, camera );
+            }
+
+            
+
+		</script>
+	</body>
+</html>
