@@ -223,6 +223,7 @@
 
                     // Listen for chat messages
                     room.onMessage('messages', (message) => {
+                        console.log('output:' + message)
                         let p = document.createElement('p');
                         p.innerHTML = message;
                         document.querySelector('.messages').appendChild(p);

@@ -1,5 +1,6 @@
 import { Room, Client } from "colyseus";
 import { State } from "./schema/State";
+import sanitizeHtml from 'sanitize-html';
 
 export class World extends Room {
 
@@ -19,7 +20,7 @@ export class World extends Room {
       // Player Message
       this.onMessage("message", (client, message) => {
         console.log("[message]", client.sessionId, ":", message);
-        this.broadcast("messages", `<b>${client.sessionId}:</b> ${message}`);
+        this.broadcast("messages", `<b>${client.sessionId}:</b> ${sanitizeHtml(message)}`);
     });
   }
 
