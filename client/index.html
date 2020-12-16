@@ -26,7 +26,7 @@
             <div class='messages'></div>
 
             <form class='reply'>
-                <input type='text' id='input' value='' autocomplete='off' autofocus/>
+                <input type='text' id='input' value='' autocomplete='off'/>
                 <input type='submit' id='send' value='send' />
             </form>
         </div>
@@ -37,7 +37,7 @@
 		<script src='./assets/js/three/OrbitControls.js'></script>
 
 		<script>
-            let client, world, width, height, camera, direction, compass, grid, listener, sound, controls, scene, renderer;
+            let client, world, width, height, camera, offset, directionPlayer, Player, directionCompass, compass, grid, listener, sound, controls, scene, renderer;
             
             // Set Server
             client = new Colyseus.Client('ws://139.162.170.247:2567');
@@ -67,11 +67,13 @@
             animate()
 
             function init() {
+
         
                 // Generate Scene
                 scene = new THREE.Scene();
                 scene.background = new THREE.Color( 0x161616 );
                 scene.fog = new THREE.FogExp2( 0x161616, 0.02 );
+
 
                 // Render
                 renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -79,8 +81,13 @@
                 renderer.setSize( width, height );
                 document.body.appendChild( renderer.domElement );
 
-                // Camera and Controls
+
+                // Camera 
                 camera = new THREE.PerspectiveCamera( 60, width / height, 0.5, 1000);
+                //scene.add(camera);
+
+
+                // Controls
                 controls = new THREE.OrbitControls( camera, renderer.domElement );
 
                 camera.position.set( 1, 5, 15 );
@@ -90,14 +97,22 @@
                 controls.minDistance = 0;
                 controls.maxDistance = 50;
 
+    
+
                 controls.maxPolarAngle = Math.PI / 2
+
+                //Direction
+                directionPlayer = new THREE.Vector3();
+                directionCompass = new THREE.Vector3();
 
                 // Add Grid
                 grid = new THREE.GridHelper(1000, 1000, "aqua", "gray");
                 scene.add(grid);
             
 
+                // Axes Helper
                 scene.add( new THREE.AxesHelper(10));
+
 
                 // Generate Shading
 				const NorthLight = new THREE.DirectionalLight( 0xffffff );
@@ -111,9 +126,10 @@
 				const ambientLight = new THREE.AmbientLight( 0x222222 );
 				scene.add( ambientLight );
 
+
                 // Add Compas
-                 direction = new THREE.Vector3();
                  compass = new THREE.Spherical();
+
 
                 // Set Sound
                 listener = new THREE.AudioListener();
@@ -121,8 +137,8 @@
 
                 sound = new THREE.Audio(listener);
 
-                // Toggle Sound
 
+                // Toggle Sound
                 let switchState = 0;
                 document.getElementById('sound').addEventListener('click', () => {
 
@@ -149,8 +165,8 @@
                 client.joinOrCreate('world').then(instance => {
                     room = instance
 
-                    var players = {};
-                    var colors = [0xff0000, 0x00ff00, 0xffff00, 0x0000ff, 0x00ffff, 0x9900ff];
+                    let players = {};
+                    let colors = [0xff0000, 0x00ff00, 0xffff00, 0x0000ff, 0x00ffff, 0x9900ff];
 
                     // New player enters the world
                     room.state.players.onAdd = function (player, sessionId) {
@@ -159,11 +175,12 @@
                         const cylinder = new THREE.CylinderBufferGeometry(0, 1, 3, 5, 1);
                         const cylinderMaterial = new THREE.MeshPhongMaterial( { color: colors[Math.floor(Math.random() * colors.length)],  flatShading: true } );
 
-                        let Player = new THREE.Mesh(cylinder, cylinderMaterial )
+                        Player = new THREE.Mesh(cylinder, cylinderMaterial )
 
                         Player.position.z = 0;
                         Player.position.x = 0;
                         Player.position.y = 1.5; 
+
 
                         // Generate a label for the Player
                         const label = new THREE.TextGeometry(sessionId, {
@@ -177,6 +194,7 @@
                             bevelSegments: 0.1
                         });
 
+
                         // Add the Player's nametag
                         const textMaterial = new THREE.MeshBasicMaterial({ color: colors[Math.floor(Math.random() * colors.length)] });
                         let playerName = new THREE.Mesh(label, textMaterial);
@@ -187,12 +205,14 @@
 
                         Player.add(playerName);
 
+
                         // Update the Player's coordinates onchange
                         player.onChange = function (changes) {
                             Player.position.x = player.x;
                             Player.position.z = player.y;
                         }
             
+
                         // Add the Player to the Scene
                         players[sessionId] = Player;
                         scene.add(Player); 
@@ -248,35 +268,42 @@
 
                 if (keyCode == 40) {
                     room.send('move', { y: 1 })
+                    controls.target = new THREE.Vector3(Player.position.x, Player.position.y, Player.position.z)
                 } 
                 
                 if (keyCode == 38) {
                     room.send('move', { y: -1 });
+                    controls.target = new THREE.Vector3(Player.position.x, Player.position.y, Player.position.z)
                 } 
                 
                 if (keyCode == 37) {
                     room.send('move', { x: -1 })
-                } 
+                    controls.target = new THREE.Vector3(Player.position.x, Player.position.y, Player.position.z)
+                }
                 
                 if (keyCode == 39) {
                     room.send('move', { x: 1 });
+                    controls.target = new THREE.Vector3(Player.position.x, Player.position.y, Player.position.z)
                 }
             };
 
             // Animate
             function animate() {
-                requestAnimationFrame( animate );
+                requestAnimationFrame(animate);
+
+
+                camera.getWorldDirection(directionCompass);
+
                 controls.update();
-                render();
-            }
+                
 
-            function render() {
+                compass.setFromVector3(directionCompass);
+                document.getElementById('compass').style.transform = `rotate(${THREE.Math.radToDeg(compass.theta) - 180}deg)`;
+                
                 renderer.render( scene, camera );
-                camera.getWorldDirection(direction);
-                compass.setFromVector3(direction);
-
-                 document.getElementById('compass').style.transform = `rotate(${THREE.Math.radToDeg(compass.theta) - 180}deg)`;
             }
+
+    
 		</script>
 	</body>
 </html>
