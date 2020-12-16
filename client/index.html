@@ -40,7 +40,7 @@
             let client, world, width, height, camera, offset, directionPlayer, Player, directionCompass, compass, grid, listener, sound, controls, scene, renderer;
             
             // Set Server
-            client = new Colyseus.Client('ws://139.162.170.247:2567');
+            client = new Colyseus.Client('ws://localhost:2567');
 
             // Set frame
             width = window.innerWidth;
@@ -83,12 +83,12 @@
 
 
                 // Camera 
-                camera = new THREE.PerspectiveCamera( 60, width / height, 0.5, 1000);
+                camera = new THREE.PerspectiveCamera(60, width / height, 0.5, 1000);
                 //scene.add(camera);
 
 
                 // Controls
-                controls = new THREE.OrbitControls( camera, renderer.domElement );
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
 
                 camera.position.set( 1, 5, 15 );
                 controls.enableDamping = true;
@@ -96,9 +96,6 @@
                 controls.screenSpacePanning = false;
                 controls.minDistance = 0;
                 controls.maxDistance = 50;
-
-    
-
                 controls.maxPolarAngle = Math.PI / 2
 
                 //Direction
@@ -209,7 +206,7 @@
                         // Update the Player's coordinates onchange
                         player.onChange = function (changes) {
                             Player.position.x = player.x;
-                            Player.position.z = player.y;
+                            Player.position.z = player.z;
                         }
             
 
@@ -267,12 +264,12 @@
                 var keyCode = event.which;
 
                 if (keyCode == 40) {
-                    room.send('move', { y: 1 })
+                    room.send('move', { z: 1 })
                     controls.target = new THREE.Vector3(Player.position.x, Player.position.y, Player.position.z)
                 } 
                 
                 if (keyCode == 38) {
-                    room.send('move', { y: -1 });
+                    room.send('move', { z: -1 });
                     controls.target = new THREE.Vector3(Player.position.x, Player.position.y, Player.position.z)
                 } 
                 

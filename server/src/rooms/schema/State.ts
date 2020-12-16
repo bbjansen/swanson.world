@@ -5,7 +5,7 @@ export class Player extends Schema {
   x = 0;
 
   @type("number")
-  y = 0;
+  z = 0;
 }
 
 export class State extends Schema {
@@ -26,8 +26,8 @@ export class State extends Schema {
       if (movement.x) {
           this.players.get(sessionId).x += movement.x;
 
-      } else if (movement.y) {
-          this.players.get(sessionId).y += movement.y;
+      } else if (movement.z) {
+          this.players.get(sessionId).z += movement.z;
       }
   }
 }
