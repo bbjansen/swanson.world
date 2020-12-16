@@ -96,6 +96,9 @@
                 grid = new THREE.GridHelper(1000, 1000, "aqua", "gray");
                 scene.add(grid);
             
+
+                scene.add( new THREE.AxesHelper(10));
+
                 // Generate Shading
 				const NorthLight = new THREE.DirectionalLight( 0xffffff );
 				NorthLight.position.set( 1, 1, 1 );
