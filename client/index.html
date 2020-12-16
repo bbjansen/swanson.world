@@ -23,7 +23,7 @@
         </div>
 
         <div id="sound">
-        <button class="soundButton">🔊</button>
+        <button id="soundButton">🔊</button>
         </div>
 
     	<script src='./assets/js/colyseus.js'></script>
@@ -111,26 +111,28 @@
                 sound = new THREE.Audio(listener);
 
                 // Toggle Sound
-                document.querySelectorAll('.soundButton').forEach(function(el){
 
-                    let switchState = 0;
-                    document.body.addEventListener('click', () => {
+                let switchState = 0;
+                document.getElementById('sound').addEventListener('click', () => {
 
-                        if(switchState === 0) {
-                            
-                            sound.setBuffer(soundtrack);
-                            sound.setLoop(true);
-                            sound.setVolume(0.5);
-                            sound.play();
+                    if(switchState === 0) {
+                        
+                        sound.setBuffer(soundtrack);
+                        sound.setLoop(true);
+                        sound.setVolume(0.5);
+                        sound.play();
 
-                            switchState = 1
-                        }
-                        else if(switchState === 1) {
-                            sound.stop();
-                            switchState = 0;
-                        }
-                    })
+                        switchState = 1
+                        document.getElementById('soundButton').style.backgroundColor = "green";
+                    }
+                    else if(switchState === 1) {
+                        sound.stop();
+                        switchState = 0;
+                        document.getElementById('soundButton').style.backgroundColor = "red";
+
+                    }
                 })
+            
 
                 // Add logged in Players
                 client.joinOrCreate('world').then(instance => {
