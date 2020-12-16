@@ -68,7 +68,6 @@
 
             function init() {
 
-        
                 // Generate Scene
                 scene = new THREE.Scene();
                 scene.background = new THREE.Color( 0x161616 );
@@ -103,12 +102,12 @@
                 directionCompass = new THREE.Vector3();
 
                 // Add Grid
-                grid = new THREE.GridHelper(1000, 1000, "aqua", "gray");
+                grid = new THREE.GridHelper(150, 150, "aqua", "gray");
                 scene.add(grid);
             
 
                 // Axes Helper
-                scene.add( new THREE.AxesHelper(10));
+                scene.add( new THREE.AxesHelper(75));
 
 
                 // Generate Shading
