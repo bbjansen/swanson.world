@@ -31,10 +31,10 @@
             </form>
         </div>
 
-
     	<script src='./assets/js/colyseus.js'></script>
 		<script src='./assets/js/three.js'></script>
 		<script src='./assets/js/three/OrbitControls.js'></script>
+		<script src='./assets/js/three/CSS3DRenderer.js'></script>
 
 		<script>
             let client, world, width, height, camera, offset, directionPlayer, Player, directionCompass, compass, grid, listener, sound, controls, scene, renderer;
@@ -156,7 +156,7 @@
 
                     }
                 })
-            
+
 
                 // Add logged in Players
                 client.joinOrCreate('world').then(instance => {
@@ -248,15 +248,15 @@
                 window.addEventListener('resize', onWindowResize, false );
             };
 
-            // Resize
 
+            // Resize
             function onWindowResize() {
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
 
                 renderer.setSize( window.innerWidth, window.innerHeight );
             }
-        
+
             // Movement Keys
             document.addEventListener('keydown', onDocumentKeyDown, false);
 
@@ -284,6 +284,7 @@
                     controls.target = new THREE.Vector3(Player.position.x, Player.position.y, Player.position.z)
                 }
             };
+
 
             // Animate
             function animate() {
