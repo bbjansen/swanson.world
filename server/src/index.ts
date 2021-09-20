@@ -7,7 +7,7 @@ import { monitor } from "@colyseus/monitor";
 
 import { World } from "./rooms/World";
 
-const port = Number(process.env.PORT || 2567);
+const port = Number(process.env.PORT || 8080);
 const app = express()
 
 app.use(cors());
@@ -33,4 +33,4 @@ gameServer.define('world', World).enableRealtimeListing();
 app.use("/admin", monitor());
 
 gameServer.listen(port);
-console.log(`Listening on ws://localhost:${ port }`)
+console.log(`Listening on ws://swanson.world:${ port }`)
