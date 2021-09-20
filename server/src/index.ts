@@ -10,7 +10,7 @@ import { World } from "./rooms/World";
 const port = Number(process.env.PORT || 8080);
 const app = express()
 
-app.use(CORS({ origin: "gateway.pinata.cloud"}));
+app.use(CORS());
 app.use(express.json())
 
 const server = http.createServer(app);

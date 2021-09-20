@@ -31,7 +31,7 @@ export class World extends Room {
   onJoin (client: Client) {
       //client.send("world");
       this.state.createPlayer(client.sessionId);
-      this.broadcast("messages", `<i><b>${ client.sessionId }</b> joined swanson.world. say hello!</i>`);
+      this.broadcast("messages", `<i><b>${ client.sessionId }</b> joined fexworld. say hello!</i>`);
   }
 
   onLeave (client: any) {

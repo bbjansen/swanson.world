@@ -4,13 +4,13 @@
 		<meta charset='utf-8'>
         <meta name='viewport' content='width=device-width' />
 
-		<title>swanson.world</title>
-        <link rel='stylesheet' href='./assets/css/style.css'>
+		<title>fexworld</title>
+        <link rel='stylesheet' href='./play/assets/css/style.css'>
 	</head>
 	<body>
 
         <div id="banner">
-            <p class="title">swanson.world</p>
+            <p class="title">FexWorld</p>
         </div>
 
         <div id="sound">
@@ -18,7 +18,7 @@
         </div>
 
         <div id="compass">
-            <img src="./assets/sprites/compass.svg" height="200px" width="200px" />
+            <img src="./play/assets/sprites/compass.svg" height="200px" width="200px" />
         </div>
 
 
@@ -31,10 +31,10 @@
             </form>
         </div>
 
-    	<script src='./assets/js/colyseus.js'></script>
-		<script src='./assets/js/three.js'></script>
-		<script src='./assets/js/three/OrbitControls.js'></script>
-		<script src='./assets/js/three/CSS3DRenderer.js'></script>
+    	<script src='./play/assets/js/colyseus.js'></script>
+		<script src='./play/assets/js/three.js'></script>
+		<script src='./play/assets/js/three/OrbitControls.js'></script>
+		<script src='./play/assets/js/three/CSS3DRenderer.js'></script>
 
 		<script>
             let client, world, width, height, camera, offset, directionPlayer, Player, directionCompass, compass, grid, listener, sound, controls, scene, renderer;
@@ -50,7 +50,7 @@
             let font;
             let Fontloader = new THREE.FontLoader();
 
-            Fontloader.load('./assets/fonts/helvetiker_regular.typeface.json', function ( response ) {
+            Fontloader.load('./play/assets/fonts/helvetiker_regular.typeface.json', function ( response ) {
                 font = response;
             } );
 
@@ -58,7 +58,7 @@
             let soundtrack;
             let audioLoader = new THREE.AudioLoader();
 
-            audioLoader.load('./assets/sounds/welcome.ogg', function( buffer ) {
+            audioLoader.load('./play/assets/sounds/welcome.ogg', function( buffer ) {
                soundtrack = buffer
             });
 
