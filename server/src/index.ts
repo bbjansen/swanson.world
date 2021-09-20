@@ -1,6 +1,6 @@
 import http from "http";
 import express from "express";
-import cors from "cors";
+import CORS from "cors";
 import { Server } from "colyseus";
 import { monitor } from "@colyseus/monitor";
 // import socialRoutes from "@colyseus/social/express"
@@ -10,7 +10,7 @@ import { World } from "./rooms/World";
 const port = Number(process.env.PORT || 8080);
 const app = express()
 
-app.use(cors());
+app.use(CORS({ origin: "gateway.pinata.cloud"}));
 app.use(express.json())
 
 const server = http.createServer(app);
