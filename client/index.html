@@ -5,7 +5,7 @@
         <meta name='viewport' content='width=device-width' />
 
 		<title>swanson.world</title>
-        <link rel='stylesheet' href='./play/assets/css/style.css'>
+        <link rel='stylesheet' href='./assets/css/style.css'>
 	</head>
 	<body>
 
@@ -18,7 +18,7 @@
         </div>
 
         <div id="compass">
-            <img src="./play/assets/sprites/compass.svg" height="200px" width="200px" />
+            <img src="./assets/sprites/compass.svg" height="200px" width="200px" />
         </div>
 
 
@@ -31,13 +31,13 @@
             </form>
         </div>
 
-    	<script src='./play/assets/js/colyseus.js'></script>
-		<script src='./play/assets/js/three.js'></script>
-		<script src='./play/assets/js/three/OrbitControls.js'></script>
-		<script src='./play/assets/js/three/CSS3DRenderer.js'></script>
+    	<script src='./assets/js/colyseus.js'></script>
+		<script src='./assets/js/three.js'></script>
+		<script src='./assets/js/three/OrbitControls.js'></script>
+		<script src='./assets/js/three/CSS3DRenderer.js'></script>
 
 		<script>
-            let client, world, width, height, camera, offset, directionPlayer, Player, directionCompass, compass, grid, listener, sound, controls, scene, renderer;
+            let client, world, width, height, camera, offset, directionPlayer, Player = [], directionCompass, compass, grid, listener, sound, controls, scene, renderer;
             
             // Set Server
             client = new Colyseus.Client('wss://swanson.world');
@@ -50,7 +50,7 @@
             let font;
             let Fontloader = new THREE.FontLoader();
 
-            Fontloader.load('./play/assets/fonts/helvetiker_regular.typeface.json', function ( response ) {
+            Fontloader.load('./assets/fonts/helvetiker_regular.typeface.json', function ( response ) {
                 font = response;
             } );
 
@@ -58,7 +58,7 @@
             let soundtrack;
             let audioLoader = new THREE.AudioLoader();
 
-            audioLoader.load('./play/assets/sounds/welcome.ogg', function( buffer ) {
+            audioLoader.load('./assets/sounds/welcome.ogg', function( buffer ) {
                soundtrack = buffer
             });
 
@@ -102,7 +102,7 @@
                 directionCompass = new THREE.Vector3();
 
                 // Add Grid
-                grid = new THREE.GridHelper(150, 150, "aqua", "gray");
+                grid = new THREE.GridHelper(50, 50, "aqua", "grey");
                 scene.add(grid);
             
 
@@ -171,11 +171,13 @@
                         const cylinder = new THREE.CylinderBufferGeometry(0, 1, 3, 5, 1);
                         const cylinderMaterial = new THREE.MeshPhongMaterial( { color: colors[Math.floor(Math.random() * colors.length)],  flatShading: true } );
 
-                        Player = new THREE.Mesh(cylinder, cylinderMaterial )
+                        Player[sessionId] = new THREE.Mesh(cylinder, cylinderMaterial )
+                        
+                        console.log(Player.uuid)
 
-                        Player.position.z = 0;
-                        Player.position.x = 0;
-                        Player.position.y = 1.5; 
+                        Player[sessionId].position.z = 0;
+                        Player[sessionId].position.x = 0;
+                        Player[sessionId].position.y = 1.5; 
 
 
                         // Generate a label for the Player
@@ -199,19 +201,19 @@
                         playerName.position.x = -0.7;
                         playerName.position.y = 2.5;
 
-                        Player.add(playerName);
+                        Player[sessionId].add(playerName);
 
 
                         // Update the Player's coordinates onchange
                         player.onChange = function (changes) {
-                            Player.position.x = player.x;
-                            Player.position.z = player.z;
+                            Player[sessionId].position.x = player.x;
+                            Player[sessionId].position.z = player.z;
                         }
             
-
                         // Add the Player to the Scene
                         players[sessionId] = Player;
-                        scene.add(Player); 
+
+                        scene.add(Player[sessionId]); 
                     }
 
                     // Remove the Player from the Scene on leavicng
@@ -263,21 +265,25 @@
 
                 var keyCode = event.which;
 
+                //down
                 if (keyCode == 40) {
                     room.send('move', { z: 1 })
                     controls.target = new THREE.Vector3(Player.position.x, Player.position.y, Player.position.z)
                 } 
                 
+                //up
                 if (keyCode == 38) {
                     room.send('move', { z: -1 });
                     controls.target = new THREE.Vector3(Player.position.x, Player.position.y, Player.position.z)
                 } 
                 
+                //left
                 if (keyCode == 37) {
                     room.send('move', { x: -1 })
                     controls.target = new THREE.Vector3(Player.position.x, Player.position.y, Player.position.z)
                 }
                 
+                //right
                 if (keyCode == 39) {
                     room.send('move', { x: 1 });
                     controls.target = new THREE.Vector3(Player.position.x, Player.position.y, Player.position.z)
@@ -301,7 +307,8 @@
                 renderer.render( scene, camera );
             }
 
-    
 		</script>
 	</body>
 </html>
+
+i
