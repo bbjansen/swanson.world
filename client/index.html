@@ -5,7 +5,7 @@
         <meta name='viewport' content='width=device-width' />
 
 		<title>swanson.world</title>
-        <link rel='stylesheet' href='/assets/css/style.css'>
+        <link rel='stylesheet' href='assets/css/style.css'>
 	</head>
 	<body>
 
@@ -18,7 +18,7 @@
         </div>
 
         <div id="compass">
-            <img src="/assets/sprites/compass.svg" height="200px" width="200px" />
+            <img src="assets/sprites/compass.svg" height="200px" width="200px" />
         </div>
 
 
@@ -31,10 +31,10 @@
             </form>
         </div>
 
-    	<script src='/assets/js/colyseus.js'></script>
-		<script src='/assets/js/three.js'></script>
-		<script src='/assets/js/three/OrbitControls.js'></script>
-		<script src='/assets/js/three/CSS3DRenderer.js'></script>
+    	<script src='assets/js/colyseus.js'></script>
+		<script src='assets/js/three.js'></script>
+		<script src='assets/js/three/OrbitControls.js'></script>
+		<script src='assets/js/three/CSS3DRenderer.js'></script>
 
 		<script>
             let client, world, width, height, camera, offset, directionPlayer, Player = [], directionCompass, compass, grid, listener, sound, controls, scene, renderer;
@@ -50,7 +50,7 @@
             let font;
             let Fontloader = new THREE.FontLoader();
 
-            Fontloader.load('/assets/fonts/helvetiker_regular.typeface.json', function ( response ) {
+            Fontloader.load('assets/fonts/helvetiker_regular.typeface.json', function ( response ) {
                 font = response;
             } );
 
@@ -58,7 +58,7 @@
             let soundtrack;
             let audioLoader = new THREE.AudioLoader();
 
-            audioLoader.load('/assets/sounds/welcome.ogg', function( buffer ) {
+            audioLoader.load('assets/sounds/welcome.ogg', function( buffer ) {
                soundtrack = buffer
             });
 
